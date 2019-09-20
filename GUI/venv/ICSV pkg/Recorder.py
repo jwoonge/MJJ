@@ -1,86 +1,91 @@
 import pyaudio
 import SoundHandler
 
-def testRECORDER() :
-  testRECORDER.count += 1
-  formatname='.wav'
-  count_s = str(testRECORDER.count)
-  filename = 'test' + count_s + formatname
-  CHUNK = 1
-  FORMAT = pyaudio.paInt16
-  CHANNELS = 1
-  RATE = 16000
-  RECORD_SECONDS = 3
+class recorder() :
+  def __init__(self):
+    self.testcount = 0
+    self.traincount = 0
+    self.testvalue = []
+    self.trainvalue = []
 
-  p = pyaudio.PyAudio()
+  def testRECORDER(self):
 
-  stream = p.open(format=FORMAT,
-                  channels=CHANNELS,
-                  rate=RATE,
-                  input=True,
-                  frames_per_buffer=CHUNK)
+    self.testcount += 1
+    formatname = '.wav'
+    count_s = str(self.testcount)
+    filename = 'test' + count_s + formatname
+    CHUNK = 1
+    FORMAT = pyaudio.paInt16
+    CHANNELS = 1
+    RATE = 16000
+    RECORD_SECONDS = 3
 
-  print("Start to record the audio.")
+    p = pyaudio.PyAudio()
 
-  frames = []
+    stream = p.open(format=FORMAT,
+                    channels=CHANNELS,
+                    rate=RATE,
+                    input=True,
+                    frames_per_buffer=CHUNK)
 
-  for i in range(0, int(RATE / CHUNK * RECORD_SECONDS)):
-    data = stream.read(CHUNK)
-    frames.append(data)
+    print("Start to record the audio.")
 
-  print("Recording is finished.")
-  stream.stop_stream()
-  stream.close()
-  p.terminate()
+    frames = []
 
-  value = []
-  for i in range(0, len(frames)):
-    ret = int.from_bytes(frames[i], 'little', signed=True)
-    value.append(ret)
+    for i in range(0, int(RATE / CHUNK * RECORD_SECONDS)):
+      data = stream.read(CHUNK)
+      frames.append(data)
 
-  output_rec = SoundHandler.Sound(value, 1)
-  output_rec.WriteWav_self(filename)
+    print("Recording is finished.")
+    stream.stop_stream()
+    stream.close()
+    p.terminate()
 
-def trainRECORDER() :
-  trainRECORDER.count += 1
-  formatname='.wav'
-  count_s = str(testRECORDER.count)
-  filename = 'train' + count_s + formatname
-  CHUNK = 1
-  FORMAT = pyaudio.paInt16
-  CHANNELS = 1
-  RATE = 16000
-  RECORD_SECONDS = 3
+    value = []
+    for i in range(0, len(frames)):
+      ret = int.from_bytes(frames[i], 'little', signed=True)
+      value.append(ret)
+    recorder.testvalue = value
+    output_rec = SoundHandler.Sound(value, 1)
+    output_rec.WriteWav_self(filename)
 
-  p = pyaudio.PyAudio()
+  def trainRECORDER(self):
+    self.traincount += 1
+    formatname = '.wav'
+    count_s = str(self.traincount)
+    filename = 'train' + count_s + formatname
+    CHUNK = 1
+    FORMAT = pyaudio.paInt16
+    CHANNELS = 1
+    RATE = 16000
+    RECORD_SECONDS = 5
 
-  stream = p.open(format=FORMAT,
-                  channels=CHANNELS,
-                  rate=RATE,
-                  input=True,
-                  frames_per_buffer=CHUNK)
+    p = pyaudio.PyAudio()
 
-  print("Start to record the audio.")
+    stream = p.open(format=FORMAT,
+                    channels=CHANNELS,
+                    rate=RATE,
+                    input=True,
+                    frames_per_buffer=CHUNK)
 
-  frames = []
+    print("Start to record the audio.")
 
-  for i in range(0, int(RATE / CHUNK * RECORD_SECONDS)):
-    data = stream.read(CHUNK)
-    frames.append(data)
+    frames = []
 
-  print("Recording is finished.")
-  stream.stop_stream()
-  stream.close()
-  p.terminate()
+    for i in range(0, int(RATE / CHUNK * RECORD_SECONDS)):
+      data = stream.read(CHUNK)
+      frames.append(data)
 
-  value = []
-  for i in range(0, len(frames)):
-    ret = int.from_bytes(frames[i], 'little', signed=True)
-    value.append(ret)
+    print("Recording is finished.")
+    stream.stop_stream()
+    stream.close()
+    p.terminate()
 
-  output_rec = SoundHandler.Sound(value, 1)
-  output_rec.WriteWav_self(filename)
+    value = []
+    for i in range(0, len(frames)):
+      ret = int.from_bytes(frames[i], 'little', signed=True)
+      value.append(ret)
+    recorder.trainvalue = value
+    output_rec = SoundHandler.Sound(value, 1)
+    output_rec.WriteWav_self(filename)
 
-
-trainRECORDER.count = 0
-testRECORDER.count = 0
