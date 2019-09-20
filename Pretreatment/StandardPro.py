@@ -13,6 +13,7 @@ class standard():
 	def __init__(self):
 		self.letters = []
 		self.pronunciation = []
+		self.error = False
 
 	def fileread(self, input):
 		#self.letters = []
@@ -80,6 +81,11 @@ class standard():
 		for letter in self.pronunciation:
 			print(letter.초성, letter.중성, letter.종성)
 
+			'''if(self.error == False):
+				print(letter.초성, letter.중성, letter.종성)
+			elif(self.error == True):
+				print("Warning! This file has an Error")'''
+
 	def standardrule(self):
 		for i in self.letters:
 			self.pronunciation.append(i)
@@ -88,13 +94,19 @@ class standard():
 		self.standard10()
 		self.standard11()
 		self.standard12()
-		self.standard13()
+		self.standard13_14()
 		self.standard15()
 		#self.standard16(self.input)
 		self.standard17()
 		self.standard18()
 		self.standard19()
 		self.standard20()
+		self.standard23()
+		self.standard24_25()
+		self.standard30()
+
+
+		self.standardㅇ()
 
 	def standard5(self):
 		'''ㅑ ㅒ ㅕ ㅖ ㅘ ㅙ ㅛ ㅝ ㅞ ㅠ ㅢ’는 이중 모음으로 발음한다.
@@ -226,7 +238,7 @@ class standard():
 					self.pronunciation[i].종성 = 'ㄹ'
 					self.pronunciation[i+1].초성 = 'ㄴ'
 
-	def standard13(self):
+	def standard13_14(self):
 		'''홑받침이나 쌍받침이 모음으로 시작된 조사나 어미, 접미사와 결합되는 경우에는, 제 음가대로 뒤 음절 첫소리로 옮겨 발음한다.'''
 		for i in range(0, len(self.letters)):
 			if(i != len(self.letters) - 1):
@@ -234,12 +246,6 @@ class standard():
 					if not(self.letters[i].종성 in [" ", "ㄳ", "ㄵ", "ㄶ", "ㄺ", "ㄻ", "ㄼ", "ㄽ", "ㄾ", "ㄿ", "ㅀ"]):
 						self.pronunciation[i+1].초성 = self.letters[i].종성
 						self.pronunciation[i].종성 = " "
-
-
-	def standard14(self):
-		'''겹받침이 모음으로 시작된 조사나 어미, 접미사와 결합되는 경우에는, 
-		   뒤엣것만을 뒤 음절 첫소리로 옮겨 발음한다.(이 경우, ‘ㅅ’은 된소리로 발음함.)'''
-
 
 	def standard15(self):
 		'''받침 뒤에 모음 ‘ㅏ, ㅓ, ㅗ, ㅜ, ㅟ’들로 시작되는 __실질 형태소__가 연결되는 경우에는, 대표음으로 바꾸어서 뒤 음절 첫소리로 옮겨 발음한다.'''
@@ -287,7 +293,7 @@ class standard():
 			if(self.letters[i+1].초성 in ['ㄴ', 'ㅁ']):
 				if(self.pronunciation[i].종성 == 'ㄱ'):
 					self.pronunciation[i].종성 = 'ㅇ'
-				elif(self.pronunciation[i].종성 == 'e'):
+				elif(self.pronunciation[i].종성 == 'ㄷ'):
 					self.pronunciation[i].종성 = 'ㄴ'
 				elif(self.pronunciation[i].종성 == 'ㅂ'):
 					self.pronunciation[i].종성 = 'ㅁ'	
@@ -310,6 +316,69 @@ class standard():
 				if(self.letters[i].종성 == 'ㄹ'):
 					self.pronunciation[i+1].초성 = 'ㄹ'
 
+	def standard23(self):
+		''' 받침 ‘ㄱ(ㄲ, ㅋ, ㄳ, ㄺ), ㄷ(ㅅ, ㅆ, ㅈ, ㅊ, ㅌ), ㅂ(ㅍ, ㄼ, ㄿ,ㅄ)’ 뒤에 연결되는 ‘ㄱ, ㄷ, ㅂ, ㅅ, ㅈ’은 된소리로 발음한다.'''
+		for i in range(0, len(self.letters) - 1):
+			if(self.letters[i].종성 in ['ㄱ', 'ㄲ', 'ㅋ', 'ㄳ', 'ㄺ', 'ㄷ', 'ㅅ', 'ㅈ', 'ㅊ', 'ㅌ', 'ㅂ', 'ㅍ', 'ㄼ', 'ㄿ', 'ㅄ']):
+				if(self.letters[i+1].초성 == 'ㄱ'):
+					self.pronunciation[i+1].초성 = 'ㄲ'
+				elif(self.letters[i+1].초성 == 'ㄷ'):
+					self.pronunciation[i+1].초성 = 'ㄸ'
+				elif(self.letters[i+1].초성 == 'ㅂ'):
+					self.pronunciation[i+1].초성 = 'ㅃ'
+				elif(self.letters[i+1].초성 == 'ㅅ'):
+					self.pronunciation[i+1].초성 = 'ㅆ'
+				elif(self.letters[i+1].초성 == 'ㅈ'):
+					self.pronunciation[i+1].초성 = 'ㅉ'
+
+	def standard24_25(self):
+		'''어간 받침 ‘ㄴ(ㄵ), ㅁ(ㄻ)’ 뒤에 결합되는 어미의 첫소리 ‘ㄱ, ㄷ, ㅅ, ㅈ’은 된소리로 발음한다.
+		   다만, 피동, 사동의 접미사 ‘-기-’는 된소리로 발음하지 않는다. 용언 어간에만 적용.
+		   현재단계에서 정확하게 구현할 수 없기 때문에, 이를 한계점으로 인식하고 self.error 변수를 = True로 설정한다.
+		   단, 피동 / 사동 접미사인 '이''히''리''기''우''구''추'가 확인되지 않을경우, 법칙을 적용하지 않는다. '''
+		for i in range(0, len(self.letters) - 1):
+			if(self.letters[i].종성 in ['ㄴ', 'ㄵ', 'ㅁ', 'ㄻ', 'ㄼ', 'ㄾ']):
+				if not (self.letters[i+1].초성 in ['ㅇ', 'ㅎ', 'ㄹ', 'ㄱ'] and self.letters[i+1].중성 == 'ㅣ'):
+					if(i+1 == len(self.letters) or self.letters[i+2].초성 == ' '):
+						if(self.letters[i+1].초성 == 'ㄱ'):
+							self.pronunciation[i+1].초성 ='ㄲ'
+						elif(self.letters[i+1].초성 == 'ㄷ'):
+							self.pronunciation[i+1].초성 ='ㄸ'
+						elif(self.letters[i+1].초성 == 'ㅅ'):
+							self.pronunciation[i+1].초성 ='ㅆ'
+						elif(self.letters[i+1].초성 == 'ㅈ'):
+							self.pronunciation[i+1].초성 ='ㅉ'
+
+
+	def standard30(self):
+		'''사이시옷이 붙은 단어는 다음과 같이 발음한다.
+			1. ‘ㄱ, ㄷ, ㅂ, ㅅ, ㅈ’으로 시작하는 단어 앞에 사이시옷이 올 때는 이들 자음만을 된소리로 발음하는 것을 원칙으로 하되, 사이시옷을 [ㄷ]으로 발음하는 것도 허용한다.
+			2. 사이시옷 뒤에 ‘ㄴ, ㅁ’이 결합되는 경우에는 [ㄴ]으로 발음한다.
+			3. 사이시옷 뒤에 ‘이’ 음이 결합되는 경우에는 [ㄴㄴ]으로 발음한다. '''
+		for i in range(0, len(self.letters) - 1):
+			if(self.letters[i].종성 in ['ㅅ', 'ㅆ']):
+				if(self.letters[i+1].초성  == 'ㄱ'):
+					self.pronunciation[i+1].초성 = 'ㄲ'
+				elif(self.letters[i+1].초성  == 'ㄷ'):
+					self.pronunciation[i+1].초성 = 'ㄸ'
+				elif(self.letters[i+1].초성  == 'ㅂ'):
+					self.pronunciation[i+1].초성 = 'ㅃ'
+				elif(self.letters[i+1].초성  == 'ㅅ'):
+					self.pronunciation[i+1].초성 = 'ㅆ'
+				elif(self.letters[i+1].초성  == 'ㅈ'):
+					self.pronunciation[i+1].초성 = 'ㅉ'
+				elif(self.letters[i+1].초성 in ['ㄴ', 'ㅁ']):
+					self.pronunciation[i].종성 = 'ㄴ'
+				elif(self.letters[i+1].초성 == 'ㅇ' and self.letters[i+1].중성 == 'ㅣ'):
+					self.pronunciation[i].종성 == 'ㄴ'
+					self.pronunciation[i+1].초성 == 'ㄴ'
+		
+
+	def standardㅇ(self):
+		'''발음규칙이 적용된 후에도 초성에 'ㅇ'이 남아 있다면, 이를 삭제한다'''
+		for i in range(0, len(self.letters)):
+			if(self.pronunciation[i].초성 == 'ㅇ'):
+				self.pronunciation[i].초성 = ''
 
 m = standard()
 m.printLetters()
