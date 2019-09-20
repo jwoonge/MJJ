@@ -19,7 +19,7 @@ class standard():
 		#self.pronunciation = []
 		input = sys.argv[1]
 
-		filename_first = 'KsponSpeech_'
+		filename_first = '../test/KsponSpeech_'
 		filename_third = '.txt'
 		filename_second = ''
 
@@ -90,10 +90,11 @@ class standard():
 		self.standard12()
 		self.standard13()
 		self.standard15()
-		#self.standard16()
+		#self.standard16(self.input)
 		self.standard17()
 		self.standard18()
 		self.standard19()
+		self.standard20()
 
 	def standard5(self):
 		'''ㅑ ㅒ ㅕ ㅖ ㅘ ㅙ ㅛ ㅝ ㅞ ㅠ ㅢ’는 이중 모음으로 발음한다.
@@ -118,13 +119,12 @@ class standard():
 
 		if len(self.letters) > 0:
 			temp = self.letters[len(self.letters) - 1]
-
-		if (temp.종성 == 'ㄲ' or temp.종성 == 'ㅋ'):
-			self.pronunciation[len(self.letters)-1].종성 = 'ㄱ'
-		elif (temp.종성 == 'ㅅ' or temp.종성 == 'ㅆ' or temp.종성 == 'ㅈ' or temp.종성 == 'ㅊ' or temp.종성 == 'ㅌ'):
-			self.pronunciation[len(self.letters)-1].종성 = 'ㄷ'
-		elif temp.종성 == 'ㅍ':
-			self.pronunciation[len(self.letters)-1].종성 = 'ㅂ' 
+			if (temp.종성 == 'ㄲ' or temp.종성 == 'ㅋ'):
+				self.pronunciation[len(self.letters)-1].종성 = 'ㄱ'
+			elif (temp.종성 == 'ㅅ' or temp.종성 == 'ㅆ' or temp.종성 == 'ㅈ' or temp.종성 == 'ㅊ' or temp.종성 == 'ㅌ'):
+				self.pronunciation[len(self.letters)-1].종성 = 'ㄷ'
+			elif temp.종성 == 'ㅍ':
+				self.pronunciation[len(self.letters)-1].종성 = 'ㅂ' 
 
 	def standard10(self):
 		'''겹받침 ‘ㄳ’, ‘ㄵ’, ‘ㄼ, ㄽ, ㄾ’, ‘ㅄ’은 어말 또는 자음 앞에서 각각 [ㄱ, ㄴ, ㄹ, ㅂ]으로 발음한다'''
@@ -249,22 +249,22 @@ class standard():
 				   and self.letters[i+1].초성 == "ㅇ" and self.letters[i+1].중성 in ['ㅏ', 'ㅓ', 'ㅗ', 'ㅜ', 'ㅟ']):					
 					self.pronunciation[i+1].초성 = self.letters[i].종성
 					self.pronunciation[i].종성 = " "
-	'''
-	def standard16(self):
-		한글 자모의 이름은 그 받침소리를 연음하되, ‘ㄷ, ㅈ, ㅊ, ㅋ, ㅌ, ㅍ, ㅎ’의 경우에는 특별히 다음과 같이 발음한다.
-'디귿' => '디긋', '지읒' => '지읏', '치읓' => '치읏', '키읔' => '키윽', '티읕' => '티읏', '피읖' => '피읍', '히읗' => '히읏' 
-		for i in range(0, len(self.letters) - 1):
+	
+	"""
+	def standard16(self, input):
+		'''한글 자모의 이름은 그 받침소리를 연음하되, ‘ㄷ, ㅈ, ㅊ, ㅋ, ㅌ, ㅍ, ㅎ’의 경우에는 특별히 다음과 같이 발음한다.
+			'디귿' => '디긋', '지읒' => '지읏', '치읓' => '치읏', '키읔' => '키윽', '티읕' => '티읏', '피읖' => '피읍', '히읗' => '히읏' ''' 
+		for i in range(0, len(input) - 1):
 			self.temp = ""
-			self.temp = self.letters[i].join(self.letters[i+1])
+			self.temp = input[i].join(input[i+1])
 			if(self.temp in ["디귿", "지읒", "치읓", "티읕", "히읗"]):
 				self.pronunciation[i+1].종성 = 'ㅅ'
 			elif(self.temp == "키읔"):
 				self.pronunciation[i+1].종성 = 'ㄱ'
 			elif(self.temp == "피읖"):
 				self.pronunciation[i+1].종성 = 'ㅂ'
-				'''
 
-
+				"""
 
 	def standard17(self):
 		'''받침 ‘ㄷ, ㅌ(ㄾ)’이 조사나 접미사의 모음 ‘ㅣ’와 결합되는 경우에는, [ㅈ, ㅊ]으로 바꾸어서 뒤 음절 첫소리로 옮겨 발음한다.
@@ -313,6 +313,6 @@ class standard():
 
 m = standard()
 m.printLetters()
-m.fileread("Ksponspeech_000003.txt")
+m.fileread(1)
 m.standardrule()
 m.printPronunciation()
