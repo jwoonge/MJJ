@@ -1,0 +1,113 @@
+import sys
+from PyQt5.QtWidgets import *
+from PyQt5 import uic
+from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QVBoxLayout, QLineEdit
+
+sys.path.append('C:\\Users\\JooHwan\\PycharmProjects\\GUI\\venv\\ICSV pkg')
+
+import Recorder
+import txtReader
+
+
+form_class = uic.loadUiType("UI source/MAIN UI.ui")[0]
+form_class1 = uic.loadUiType("UI source/TRAIN UI.ui")[0]
+form_class2 = uic.loadUiType("UI source/TEST UI.ui")[0]
+form_class3 = uic.loadUiType("UI source/STAT UI.ui")[0]
+
+
+class StatWindow(QMainWindow, form_class3):
+  def __init__(self,parent = None):
+    super(StatWindow, self).__init__(parent)
+    self.setupUi(self)
+    self.stat_exit_button.clicked.connect(self.stat_exit_btn_clicked)
+
+  def stat_exit_btn_clicked(self):
+    self.mainWindow3 = MainWindow()
+    self.mainWindow3.show()
+    self.destroy()
+
+
+class TestWindow(QMainWindow, form_class2):
+  def __init__(self, parent=None):
+    super(TestWindow, self).__init__(parent)
+    self.setupUi(self)
+    self.test_record_button.clicked.connect(self.test_record_btn_clicked)
+    self.test_next_button.clicked.connect(self.test_next_btn_clicked)
+    self.test_exit_button.clicked.connect(self.test_exit_btn_clicked)
+    self.textBrowser.setText('%s' % txtReader.Readcsv())
+  def test_record_btn_clicked(self):
+
+    self.test_record_button.setText('Now Recordeing...')
+    self.test_record_button.setEnabled(False)
+    self.test_record_button.repaint()
+    Recorder.testRECORDER()
+    self.test_record_button.setText('Recording')
+    self.test_record_button.setEnabled(True)
+    self.test_record_button.repaint()
+
+  def test_next_btn_clicked(self):
+    self.textBrowser.setText('%s' % txtReader.Readcsv())
+
+  def test_exit_btn_clicked(self):
+    self.mainWindow2 = MainWindow()
+    self.mainWindow2.show()
+    self.destroy()
+
+
+class TrainWindow(QMainWindow, form_class1):
+  def __init__(self, parent=None):
+    super(TrainWindow, self).__init__(parent)
+    self.setupUi(self)
+    self.train_record_button.clicked.connect(self.train_record_btn_clicked)
+    self.train_next_button.clicked.connect(self.train_next_btn_clicked)
+    self.train_exit_button.clicked.connect(self.train_exit_btn_clicked)
+    self.textBrowser.setText('%s' % txtReader.Readcsv())
+
+  def train_record_btn_clicked(self):
+    self.train_record_button.setText('Now Recordeing...')
+    self.train_record_button.setEnabled(False)
+    self.train_record_button.repaint()
+    Recorder.trainRECORDER()
+    self.train_record_button.setText('Recording')
+    self.train_record_button.setEnabled(True)
+    self.train_record_button.repaint()
+
+  def train_next_btn_clicked(self):
+    self.textBrowser.setText('%s' % txtReader.Readcsv())
+
+  def train_exit_btn_clicked(self):
+    self.mainWindow = MainWindow()
+    self.mainWindow.show()
+    self.destroy()
+
+
+class MainWindow(QMainWindow, form_class):
+  def __init__(self):
+    super().__init__()
+    self.setupUi(self)
+    self.testbutton.clicked.connect(self.testbtn_clicked)
+    self.trainbutton.clicked.connect(self.trainbtn_clicked)
+    self.statbutton.clicked.connect(self.statbtn_clicked)
+    self.exitbutton.clicked.connect(self.exitbtn_clicked)
+
+  def testbtn_clicked(self):
+    self.testWindow = TestWindow(self)
+    self.testWindow.show()
+    self.destroy()
+
+  def trainbtn_clicked(self):
+    self.trainWindow = TrainWindow(self)
+    self.trainWindow.show()
+    self.destroy()
+  def statbtn_clicked(self):
+    self.statWindow = StatWindow(self)
+    self.statWindow.show()
+    self.destroy()
+  def exitbtn_clicked(self):
+    sys.exit()
+
+
+app = QApplication(sys.argv)
+window = MainWindow()
+window.show()
+app.exec_()
