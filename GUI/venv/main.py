@@ -40,7 +40,9 @@ class TestWindow(QMainWindow, form_class2):
     self.test_record_button.setText('Now Recordeing...')
     self.test_record_button.setEnabled(False)
     self.test_record_button.repaint()
-    Recorder.testRECORDER()
+    t=Recorder.recorder()
+    t.testRECORDER()
+    testrecordvalue = t.testvalue
     self.test_record_button.setText('Recording')
     self.test_record_button.setEnabled(True)
     self.test_record_button.repaint()
@@ -67,7 +69,9 @@ class TrainWindow(QMainWindow, form_class1):
     self.train_record_button.setText('Now Recordeing...')
     self.train_record_button.setEnabled(False)
     self.train_record_button.repaint()
-    Recorder.trainRECORDER()
+    t=Recorder.recorder()
+    t.trainRECORDER()
+    trainrecordvalue = t.trainvalue
     self.train_record_button.setText('Recording')
     self.train_record_button.setEnabled(True)
     self.train_record_button.repaint()
