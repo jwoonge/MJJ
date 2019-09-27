@@ -1,10 +1,9 @@
 import sys
 from PyQt5.QtWidgets import *
 from PyQt5 import uic
-from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QVBoxLayout, QLineEdit
-
-sys.path.append('C:\\Users\\JooHwan\\PycharmProjects\\GUI\\venv\\ICSV pkg')
-
+from PyQt5.QtGui import *
+from random import *
+import StandardPro
 import Recorder
 import txtReader
 
@@ -13,7 +12,7 @@ form_class = uic.loadUiType("UI source/MAIN UI.ui")[0]
 form_class1 = uic.loadUiType("UI source/TRAIN UI.ui")[0]
 form_class2 = uic.loadUiType("UI source/TEST UI.ui")[0]
 form_class3 = uic.loadUiType("UI source/STAT UI.ui")[0]
-
+text = txtReader.Readcsv()
 
 class StatWindow(QMainWindow, form_class3):
   def __init__(self,parent = None):
@@ -34,7 +33,33 @@ class TestWindow(QMainWindow, form_class2):
     self.test_record_button.clicked.connect(self.test_record_btn_clicked)
     self.test_next_button.clicked.connect(self.test_next_btn_clicked)
     self.test_exit_button.clicked.connect(self.test_exit_btn_clicked)
-    self.textBrowser.setText('%s' % txtReader.Readcsv())
+    self.test_result_button.clicked.connect(self.test_result_btn_clicked)
+    a = randint(0, 2)
+    b = randint(0, 3)
+    self.textBrowser.setText('%s' % text.loc[a, b])
+    self.test_result_button.setEnabled(False)
+
+    txtdivide = StandardPro.standard()
+    for i in range(0, len(text.loc[a, b])):
+      txtdivide.divide(text.loc[a, b][i])
+
+    self.textBrowser_2.setText('%s' % txtdivide.letters[0].초성)
+    self.textBrowser_3.setText('%s' % txtdivide.letters[0].중성)
+    self.textBrowser_4.setText('%s' % txtdivide.letters[0].종성)
+    self.textBrowser_5.setText('%s' % txtdivide.letters[1].초성)
+    self.textBrowser_6.setText('%s' % txtdivide.letters[1].중성)
+    self.textBrowser_7.setText('%s' % txtdivide.letters[1].종성)
+    self.textBrowser_8.setText('%s' % txtdivide.letters[2].초성)
+    self.textBrowser_9.setText('%s' % txtdivide.letters[2].중성)
+    self.textBrowser_10.setText('%s' % txtdivide.letters[2].종성)
+
+  def test_result_btn_clicked(self):
+    print('결과창보기')
+    self.test_result_button.setEnabled(False)
+    self.test_record_button.setText('Recording')
+    self.test_record_button.setEnabled(True)
+    self.test_record_button.repaint()
+
   def test_record_btn_clicked(self):
 
     self.test_record_button.setText('Now Recordeing...')
@@ -43,12 +68,30 @@ class TestWindow(QMainWindow, form_class2):
     t=Recorder.recorder()
     t.testRECORDER()
     testrecordvalue = t.testvalue
-    self.test_record_button.setText('Recording')
-    self.test_record_button.setEnabled(True)
-    self.test_record_button.repaint()
+    self.test_result_button.setEnabled(True)
+    self.test_result_button.repaint()
 
   def test_next_btn_clicked(self):
-    self.textBrowser.setText('%s' % txtReader.Readcsv())
+
+    a = randint(0, 2)
+    b = randint(0, 3)
+
+    self.textBrowser.setText('%s' % text.loc[a, b])
+    txtdivide = StandardPro.standard()
+    for i in range(0, len(text.loc[a, b])):
+      txtdivide.divide(text.loc[a, b][i])
+    colorvar = QColor(255, 0, 0)
+    self.textBrowser_2.setTextColor(colorvar)
+    self.textBrowser_2.setText('%s' % txtdivide.letters[0].초성)
+    self.textBrowser_3.setText('%s' % txtdivide.letters[0].중성)
+    self.textBrowser_4.setText('%s' % txtdivide.letters[0].종성)
+    self.textBrowser_5.setText('%s' % txtdivide.letters[1].초성)
+    self.textBrowser_6.setText('%s' % txtdivide.letters[1].중성)
+    self.textBrowser_7.setText('%s' % txtdivide.letters[1].종성)
+    self.textBrowser_8.setText('%s' % txtdivide.letters[2].초성)
+    self.textBrowser_9.setText('%s' % txtdivide.letters[2].중성)
+    self.textBrowser_10.setText('%s' % txtdivide.letters[2].종성)
+
 
   def test_exit_btn_clicked(self):
     self.mainWindow2 = MainWindow()
@@ -63,7 +106,35 @@ class TrainWindow(QMainWindow, form_class1):
     self.train_record_button.clicked.connect(self.train_record_btn_clicked)
     self.train_next_button.clicked.connect(self.train_next_btn_clicked)
     self.train_exit_button.clicked.connect(self.train_exit_btn_clicked)
-    self.textBrowser.setText('%s' % txtReader.Readcsv())
+    self.train_result_button.clicked.connect(self.train_result_btn_clicked)
+    a = randint(0, 2)
+    b = randint(0, 3)
+    self.textBrowser.setText('%s' % text.loc[a, b])
+    self.train_result_button.setEnabled(False)
+
+    txtdivide = StandardPro.standard()
+    for i in range(0, len(text.loc[a, b])):
+      txtdivide.divide(text.loc[a, b][i])
+
+    self.textBrowser_2.setText('%s' % txtdivide.letters[0].초성)
+    self.textBrowser_3.setText('%s' % txtdivide.letters[0].중성)
+    self.textBrowser_4.setText('%s' % txtdivide.letters[0].종성)
+    self.textBrowser_5.setText('%s' % txtdivide.letters[1].초성)
+    self.textBrowser_6.setText('%s' % txtdivide.letters[1].중성)
+    self.textBrowser_7.setText('%s' % txtdivide.letters[1].종성)
+    self.textBrowser_8.setText('%s' % txtdivide.letters[2].초성)
+    self.textBrowser_9.setText('%s' % txtdivide.letters[2].중성)
+    self.textBrowser_10.setText('%s' % txtdivide.letters[2].종성)
+
+
+
+
+  def train_result_btn_clicked(self):
+    print('결과창보기')
+    self.train_result_button.setEnabled(False)
+    self.train_record_button.setText('Recording')
+    self.train_record_button.setEnabled(True)
+    self.train_record_button.repaint()
 
   def train_record_btn_clicked(self):
     self.train_record_button.setText('Now Recordeing...')
@@ -72,12 +143,27 @@ class TrainWindow(QMainWindow, form_class1):
     t=Recorder.recorder()
     t.trainRECORDER()
     trainrecordvalue = t.trainvalue
-    self.train_record_button.setText('Recording')
-    self.train_record_button.setEnabled(True)
-    self.train_record_button.repaint()
+
+    self.train_result_button.setEnabled(True)
+    self.train_result_button.repaint()
 
   def train_next_btn_clicked(self):
-    self.textBrowser.setText('%s' % txtReader.Readcsv())
+    a=randint(0, 2)
+    b=randint(0, 3)
+    self.textBrowser.setText('%s' % text.loc[a, b])
+    txtdivide = StandardPro.standard()
+    for i in range(0, len(text.loc[a, b])):
+      txtdivide.divide(text.loc[a, b][i])
+
+    self.textBrowser_2.setText('%s' % txtdivide.letters[0].초성)
+    self.textBrowser_3.setText('%s' % txtdivide.letters[0].중성)
+    self.textBrowser_4.setText('%s' % txtdivide.letters[0].종성)
+    self.textBrowser_5.setText('%s' % txtdivide.letters[1].초성)
+    self.textBrowser_6.setText('%s' % txtdivide.letters[1].중성)
+    self.textBrowser_7.setText('%s' % txtdivide.letters[1].종성)
+    self.textBrowser_8.setText('%s' % txtdivide.letters[2].초성)
+    self.textBrowser_9.setText('%s' % txtdivide.letters[2].중성)
+    self.textBrowser_10.setText('%s' % txtdivide.letters[2].종성)
 
   def train_exit_btn_clicked(self):
     self.mainWindow = MainWindow()
@@ -93,6 +179,7 @@ class MainWindow(QMainWindow, form_class):
     self.trainbutton.clicked.connect(self.trainbtn_clicked)
     self.statbutton.clicked.connect(self.statbtn_clicked)
     self.exitbutton.clicked.connect(self.exitbtn_clicked)
+
 
   def testbtn_clicked(self):
     self.testWindow = TestWindow(self)
