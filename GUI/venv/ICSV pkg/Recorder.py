@@ -11,9 +11,6 @@ class recorder() :
   def testRECORDER(self):
 
     self.testcount += 1
-    formatname = '.wav'
-    count_s = str(self.testcount)
-    filename = 'test' + count_s + formatname
     CHUNK = 1
     FORMAT = pyaudio.paInt16
     CHANNELS = 1
@@ -49,9 +46,6 @@ class recorder() :
 
   def trainRECORDER(self):
     self.traincount += 1
-    formatname = '.wav'
-    count_s = str(self.traincount)
-    filename = 'train' + count_s + formatname
     CHUNK = 1
     FORMAT = pyaudio.paInt16
     CHANNELS = 1

@@ -4,7 +4,7 @@ from random import *
 
 
 def Readcsv():
-  src = pd.read_csv('C:\\Users\\JooHwan\\PycharmProjects\\GUI\\venv\\CSV source\\QuizBank.csv', encoding='CP949', header=None)
+  src = pd.read_csv('CSV source\\QuizBank.csv', encoding='CP949', header=None)
 
   return src
 
