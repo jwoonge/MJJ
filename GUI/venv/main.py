@@ -1,12 +1,16 @@
 import sys
-from PyQt5.QtWidgets import *
+sys.path.append('/usr/lib/python3/dist-packages')
+sys.path.append('/home/pi/Desktop/ICanSeeMyVoice/ICSV pkg')
+sys.path.append('C:\\Users\\JooHwan\\PycharmProjects\\ICANSEEMYVOICE\\venv\\ICSV pkg')
 from PyQt5 import uic
+from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
+from PyQt5.QtCore import *
 from random import *
 import StandardPro
 import Recorder
 import txtReader
-
+import threading
 
 form_class = uic.loadUiType("UI source/MAIN UI.ui")[0]
 form_class1 = uic.loadUiType("UI source/TRAIN UI.ui")[0]
@@ -38,8 +42,8 @@ class TestWindow(QMainWindow, form_class2):
     b = randint(0, 3)
     self.textBrowser.setText('%s' % text.loc[a, b])
     self.test_result_button.setEnabled(False)
-
     txtdivide = StandardPro.standard()
+    self.record_btn_signal = True
     for i in range(0, len(text.loc[a, b])):
       txtdivide.divide(text.loc[a, b][i])
 
@@ -52,6 +56,9 @@ class TestWindow(QMainWindow, form_class2):
     self.textBrowser_8.setText('%s' % txtdivide.letters[2].초성)
     self.textBrowser_9.setText('%s' % txtdivide.letters[2].중성)
     self.textBrowser_10.setText('%s' % txtdivide.letters[2].종성)
+    self.t=Recorder.recorder()
+    self.sema = threading.Thread(target=self.t.RECORDERfunc)
+    self.sema.setDaemon(True)
 
   def test_result_btn_clicked(self):
     print('결과창보기')
@@ -62,14 +69,21 @@ class TestWindow(QMainWindow, form_class2):
 
   def test_record_btn_clicked(self):
 
-    self.test_record_button.setText('Now Recordeing...')
-    self.test_record_button.setEnabled(False)
-    self.test_record_button.repaint()
-    t=Recorder.recorder()
-    t.testRECORDER()
-    testrecordvalue = t.testvalue
-    self.test_result_button.setEnabled(True)
-    self.test_result_button.repaint()
+    if(self.record_btn_signal == True) :
+      self.test_record_button.setText('Stop Recording')
+      self.record_btn_signal = False
+      self.test_record_button.repaint()
+      self.t.init()
+      self.sema = threading.Thread(target=self.t.RECORDERfunc)
+      self.sema.start()
+
+
+    elif(self.record_btn_signal == False) :
+      self.t.recsignal = False
+      self.test_record_button.setText('Recording')
+      self.test_result_button.repaint()
+      self.record_btn_signal = True
+
 
   def test_next_btn_clicked(self):
 
@@ -140,9 +154,7 @@ class TrainWindow(QMainWindow, form_class1):
     self.train_record_button.setText('Now Recordeing...')
     self.train_record_button.setEnabled(False)
     self.train_record_button.repaint()
-    t=Recorder.recorder()
-    t.trainRECORDER()
-    trainrecordvalue = t.trainvalue
+
 
     self.train_result_button.setEnabled(True)
     self.train_result_button.repaint()

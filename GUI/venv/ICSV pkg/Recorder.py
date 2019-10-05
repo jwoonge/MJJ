@@ -1,81 +1,61 @@
 import pyaudio
 import SoundHandler
+import makewav
 
 class recorder() :
   def __init__(self):
-    self.testcount = 0
-    self.traincount = 0
-    self.testvalue = []
-    self.trainvalue = []
-
-  def testRECORDER(self):
-
-    self.testcount += 1
-    CHUNK = 1
-    FORMAT = pyaudio.paInt16
-    CHANNELS = 1
-    RATE = 16000
-    RECORD_SECONDS = 3
-
-    p = pyaudio.PyAudio()
-
-    stream = p.open(format=FORMAT,
-                    channels=CHANNELS,
-                    rate=RATE,
+    self.value = []
+    self.CHUNK = 1
+    self.FORMAT = pyaudio.paInt16
+    self.CHANNELS = 1
+    self.RATE = 16000
+    self.RECORD_SECONDS = 10
+    self.frames = []
+    self.p = pyaudio.PyAudio()
+    self.stream = self.p.open(format=self.FORMAT,
+                    channels=self.CHANNELS,
+                    rate=self.RATE,
                     input=True,
-                    frames_per_buffer=CHUNK)
+                    frames_per_buffer=self.CHUNK)
+    self.recsignal = True
 
+  def RECORDERfunc(self):
     print("Start to record the audio.")
 
-    frames = []
-
-    for i in range(0, int(RATE / CHUNK * RECORD_SECONDS)):
-      data = stream.read(CHUNK)
-      frames.append(data)
-
-    print("Recording is finished.")
-    stream.stop_stream()
-    stream.close()
-    p.terminate()
-
-    value = []
-    for i in range(0, len(frames)):
-      ret = int.from_bytes(frames[i], 'little', signed=True)
-      value.append(ret)
-    recorder.testvalue = value
-
-  def trainRECORDER(self):
-    self.traincount += 1
-    CHUNK = 1
-    FORMAT = pyaudio.paInt16
-    CHANNELS = 1
-    RATE = 16000
-    RECORD_SECONDS = 5
-
-    p = pyaudio.PyAudio()
-
-    stream = p.open(format=FORMAT,
-                    channels=CHANNELS,
-                    rate=RATE,
-                    input=True,
-                    frames_per_buffer=CHUNK)
-
-    print("Start to record the audio.")
-
-    frames = []
-
-    for i in range(0, int(RATE / CHUNK * RECORD_SECONDS)):
-      data = stream.read(CHUNK)
-      frames.append(data)
+    for i in range(0, int(self.RATE / self.CHUNK * self.RECORD_SECONDS)):
+      data = self.stream.read(self.CHUNK)
+      self.frames.append(data)
+      print(len(self.frames))
+      if(self.recsignal == False):
+        break
 
     print("Recording is finished.")
-    stream.stop_stream()
-    stream.close()
-    p.terminate()
+    self.stream.stop_stream()
+    self.stream.close()
+    self.p.terminate()
+    print(len(self.frames))
+    for i in range(0, len(self.frames)):
+      ret = int.from_bytes(self.frames[i], 'little', signed=True)
+      self.value.append(ret)
+    print(len(self.value))
+    makewav.Write_wav('test니미.wav',self.value)
 
-    value = []
-    for i in range(0, len(frames)):
-      ret = int.from_bytes(frames[i], 'little', signed=True)
-      value.append(ret)
-    recorder.trainvalue = value
+  def init(self):
+    self.value = []
+    self.CHUNK = 1
+    self.FORMAT = pyaudio.paInt16
+    self.CHANNELS = 1
+    self.RATE = 16000
+    self.RECORD_SECONDS = 10
+    self.frames = []
+    self.p = pyaudio.PyAudio()
+    self.stream = self.p.open(format=self.FORMAT,
+                              channels=self.CHANNELS,
+                              rate=self.RATE,
+                              input=True,
+                              frames_per_buffer=self.CHUNK)
+    self.frames = []
+    self.recsignal = True
+
+
 
