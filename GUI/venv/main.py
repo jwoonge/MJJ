@@ -145,11 +145,16 @@ class TestWindow(QMainWindow, form_class2):
     for i in range(0, len(text.loc[a, 1])):
       self.txtdivide.divide(text.loc[a, 1][i])
 
-    colorvar = QColor(255, 0, 0)
-    self.textBrowser_2.setTextColor(colorvar)
+
     self.textBrowser_2.setText('%s' % self.txtdivide.letters[0].초성)
     self.textBrowser_3.setText('%s' % self.txtdivide.letters[0].중성)
     self.textBrowser_4.setText('%s' % self.txtdivide.letters[0].종성)
+    self.textBrowser_5.setText(' ')
+    self.textBrowser_6.setText(' ')
+    self.textBrowser_7.setText(' ')
+    self.textBrowser_8.setText(' ')
+    self.textBrowser_9.setText(' ')
+    self.textBrowser_10.setText(' ')
     if (len(text.loc[a, 0]) >= 2):
       self.textBrowser_5.setText('%s' % self.txtdivide.letters[1].초성)
       self.textBrowser_6.setText('%s' % self.txtdivide.letters[1].중성)
@@ -237,6 +242,12 @@ class TrainWindow(QMainWindow, form_class1):
     self.textBrowser_2.setText('%s' % self.txtdivide.letters[0].초성)
     self.textBrowser_3.setText('%s' % self.txtdivide.letters[0].중성)
     self.textBrowser_4.setText('%s' % self.txtdivide.letters[0].종성)
+    self.textBrowser_5.setText(' ')
+    self.textBrowser_6.setText(' ')
+    self.textBrowser_7.setText(' ')
+    self.textBrowser_8.setText(' ')
+    self.textBrowser_9.setText(' ')
+    self.textBrowser_10.setText(' ')
     if (len(text.loc[a, 0]) >= 2):
       self.textBrowser_5.setText('%s' % self.txtdivide.letters[1].초성)
       self.textBrowser_6.setText('%s' % self.txtdivide.letters[1].중성)
