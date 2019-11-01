@@ -19,7 +19,7 @@ def Convert_signed(value, bitnum):
 class WAV_Header():
     def __init__(self):
         self.RIFF = namedtuple('Coordinate',['ChunkID', 'ChunkSize', 'Format'])
-        self.FMT = namedtuple('Coordinate',['ChunkID', 'ChunkSize', 'AudioFormat','NumChannels','SampleRate','AvgByteRate','BlockAlign','BitPerSample'])          
+        self.FMT = namedtuple('Coordinate',['ChunkID', 'ChunkSize', 'AudioFormat','NumChannels','SampleRate','AvgByteRate','BlockAlign','BitPerSample'])
         self.DATA = namedtuple('Coordinate',['ChunkID','ChunkSize'])
 
     def Make_Dummy_Header(self):
@@ -65,12 +65,21 @@ class WAV_Header():
 
 
 class Sound():
-    def __init__(self,filename):
+    '''def __init__(self,filename):
         self.value = []
         self.value_size = 0
         self.value_count = 0
         self.Header = WAV_Header()
-        self.ReadSound(filename)
+        self.ReadSound(filename)'''
+
+    def __init__(self, _value, num_channels):
+        self.Header = Wav_Header()
+        self.Header.Make_Dummy_Header()
+        self.value = _value
+        self.value_count = len(_value)
+
+        self.Header.RIFF.ChunkSize = 36 + 2 * num_channels * self.value_count
+        self.Header.DATA.ChunkSize = 2*self.value_count * num_channels
 
     def getValue(self):
         self.npValue = np.array(self.value)
@@ -87,7 +96,7 @@ class Sound():
                 self.Header.DATA.ChunkSize = self.value_count * self.value_size
                 self.Header.RIFF.ChunkSize = self.Header.DATA.ChunkSize + 36
                 wav_file.seek(0,0)
-            
+
             elif '.wav' in filename:
                 self.Header.Read_WAV_Header(wav_file)
                 self.value_size = int(self.Header.FMT.BitPerSample / 8)
@@ -96,10 +105,10 @@ class Sound():
             self.buffer=[]
             for i in range(0, int(self.value_count * self.Header.FMT.NumChannels)):
                 self.buffer.append(Read_little_endian(self.value_size,wav_file))
-        
+
             for i in range(0,self.value_count):
                 self.value.append(Convert_signed(self.buffer[i*self.Header.FMT.NumChannels],self.value_size))
-        
+
     def PrintHeader(self):
         print("WAV FILE Header Read")
         print("-----RIFF-----")
@@ -128,7 +137,7 @@ class Sound():
         for i in range(0,self.value_count):
             if self.value[i] != 0:
                 print(i, "\t" ,self.value[i])
-    
+
     def WriteWav_self(self, filename):
         self.WriteWav_Mono(filename, self.value_count, self.value)
 
