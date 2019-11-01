@@ -62,10 +62,10 @@ class RecordWindow(QMainWindow, form_class4):
     self.time += 0.1
     self.textBrowser.setText('%s' %round(self.time,2))
     self.textBrowser.repaint()
-    if(self.time > 5) :
+    if(self.time == 5) :
+      self.t.recsignal = False
+    if(self.time >5.2) :
       self.destroy()
-
-
 
 
 
@@ -120,10 +120,15 @@ class TestWindow(QMainWindow, form_class2):
 
   def test_result_btn_clicked(self):
     print('결과창보기')
+    colorvar = QColor(255, 0, 0)
+    self.textBrowser_2.setTextColor(colorvar)
+    self.textBrowser_2.setText('%s' % self.txtdivide.letters[0].초성)
     self.test_result_button.setEnabled(False)
     self.test_record_button.setText('Recording')
     self.test_next_button.setEnabled(True)
     self.test_record_button.repaint()
+    self.textBrowser_2.repaint()
+
 
   def test_record_btn_clicked(self):
     self.test_record_button.setText('Now Recordeing...')
@@ -144,7 +149,8 @@ class TestWindow(QMainWindow, form_class2):
     self.txtdivide = StandardPro.standard()
     for i in range(0, len(text.loc[a, 1])):
       self.txtdivide.divide(text.loc[a, 1][i])
-
+    colorvar = QColor(0, 0, 0)
+    self.textBrowser_2.setTextColor(colorvar)
 
     self.textBrowser_2.setText('%s' % self.txtdivide.letters[0].초성)
     self.textBrowser_3.setText('%s' % self.txtdivide.letters[0].중성)
@@ -214,11 +220,14 @@ class TrainWindow(QMainWindow, form_class1):
 
   def train_result_btn_clicked(self):
     print('결과창보기')
+    colorvar = QColor(255, 0, 0)
+    self.textBrowser_2.setTextColor(colorvar)
     self.train_result_button.setEnabled(False)
     self.train_record_button.setText('Recording')
 
     self.train_next_button.setEnabled(True)
     self.train_record_button.repaint()
+
 
   def train_record_btn_clicked(self):
     self.train_record_button.setText('Now Recordeing...')
@@ -238,7 +247,8 @@ class TrainWindow(QMainWindow, form_class1):
     self.txtdivide = StandardPro.standard()
     for i in range(0, len(text.loc[a, 1])):
       self.txtdivide.divide(text.loc[a, 1][i])
-
+    colorvar = QColor(0, 0, 0)
+    self.textBrowser_2.setTextColor(colorvar)
     self.textBrowser_2.setText('%s' % self.txtdivide.letters[0].초성)
     self.textBrowser_3.setText('%s' % self.txtdivide.letters[0].중성)
     self.textBrowser_4.setText('%s' % self.txtdivide.letters[0].종성)

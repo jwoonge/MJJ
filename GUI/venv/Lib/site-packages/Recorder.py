@@ -13,14 +13,15 @@ dev_index = 1 # device index found by p.get_device_info_by_index(ii)
 stream = self.p.open(format = form_1,rate = samp_rate,channels = chans, \
                     input_device_index = dev_index,input = True, \
                     frames_per_buffer=chunk)'''
-
+import os
+import wave
 class recorder() :
   def __init__(self):
     self.value = []
     self.frames = []
     self.p = pyaudio.PyAudio()
 
-    self.CHUNK = 1
+    self.CHUNK = 2
     self.FORMAT = pyaudio.paInt16
     self.CHANNELS = 1
     self.RATE = 16000
@@ -29,8 +30,17 @@ class recorder() :
 
     self.stream = self.p.open(format=self.FORMAT, rate=self.RATE,channels=self.CHANNELS,
                                input_device_index=1, input=True,
-                               frames_per_buffer=self.CHUNK)
+                               frames_per_buffer=4096)
 
+
+
+  def removeAllFile(self, filePath):
+    if os.path.exists(filePath):
+      for file in os.scandir(filePath):
+        os.remove(file.path)
+      return 'Removed All Files'
+    else:
+      return 'Directory Not Found'
 
   def RECORDERfunc(self):
     print("Start to record the audio.")
@@ -49,12 +59,18 @@ class recorder() :
     for i in range(0, len(self.frames)):
       ret = int.from_bytes(self.frames[i], 'little', signed=True)
       self.value.append(ret)
-    makewav.Write_wav('test.wav',self.value)
+    self.removeAllFile('/home/pi/Desktop/ICanSeeMyVoice/recorded')
+    wf = wave.open('test.wav', 'wb')
+    wf.setnchannels(self.CHANNELS)
+    wf.setsampwidth(self.p.get_sample_size(self.FORMAT))
+    wf.setframerate(self.RATE)
+    wf.writeframes(b''.join(self.frames))
+    wf.close()
   def init(self):
     self.value = []
     self.frames = []
     self.p = pyaudio.PyAudio()
-    self.CHUNK = 1
+    self.CHUNK = 2
     self.FORMAT = pyaudio.paInt16
     self.CHANNELS = 1
     self.RATE = 16000
@@ -63,7 +79,7 @@ class recorder() :
     self.p = pyaudio.PyAudio()
     self.stream = self.p.open(format=self.FORMAT, rate=self.RATE, channels=self.CHANNELS,
                               input_device_index=1, input=True,
-                              frames_per_buffer=self.CHUNK)
+                              frames_per_buffer=4096)
     '''
     self.form_1 = pyaudio.paInt16  # 16-bit resolution
     self.chans = 1  # 1 channel
