@@ -9,11 +9,3 @@ def Readcsv():
   return src
 
 
-<<<<<<< HEAD
-def Readcsv() :
-  src = pd.read_csv('CSV source\QuizBank.csv', engine= 'python')
-  i = randint(0, 2)
-  Readstring = src.columns[i]
-  return Readstring
-=======
->>>>>>> GUI
