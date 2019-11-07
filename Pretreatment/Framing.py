@@ -2,15 +2,32 @@ import math
 
 def Framing(input_list, frame_size, interval):
     value_count = len(input_list)
-    N_frames = math.ceil((value_count-frame_size)/(frame_size-interval))+1
+    N_frames = math.ceil((value_count-frame_size)/(frame_size-interval))
     framed_list = [[0 for x in range(frame_size)] for y in range(N_frames)]
-    for i in range(N_frames-1):
+    for i in range(N_frames):
         for j in range(frame_size):
             framed_list[i][j] = input_list[i*(frame_size-interval)+j]
-    for i in range((N_frames-1)*(frame_size-interval), value_count):
-        framed_list[N_frames-1][i-(N_frames-1)*(frame_size-interval)] = input_list[i]
 
     return framed_list
+
+def Framing_2dim(input, frame_size, interval):
+    value_count = len(input)
+    freqs = len(input[0])
+    N_frames = math.ceil((value_count-frame_size)/(frame_size-interval))
+    framed_list = []
+    for i in range(N_frames):
+        temp = [0 for x in range(frame_size)]
+        for j in range(frame_size):
+            temp[j] = input[i*(frame_size-interval)+j]
+        temp_1dim = [0 for x in range(freqs)]
+        for j in range(frame_size):
+            for k in range(freqs):
+                temp_1dim[k] += temp[j][k]/frame_size
+        framed_list.append(temp_1dim)
+    return framed_list
+        
+
+            
 
 def Get_Frames(original_list, start, end, frame_size, interval):
     ret = []

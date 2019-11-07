@@ -31,8 +31,10 @@ def Write_wav(filename, input, sample_rate=16000, value_size=2, num_channels=1):
         write_file.write((bytes_per_sample * value_count * num_channels).to_bytes(4,byteorder='little',signed=False))
 
         for i in range(0,value_count*num_channels):
-            if input[i]>65536:
-                print(i, ' ', input[i])
+            if input[i]>32767:
+                input[i] = 32767
+            elif input[i]<-32768:
+                input[i] = -32768
         for i in range(0, value_count*num_channels):
             write_file.write(input[i].to_bytes(bytes_per_sample,byteorder='little',signed=True))
 
@@ -56,7 +58,7 @@ def removeAllFile(filePath):
     else:
         return 'Directory Not Found'
 
-def Read_file(filename, frameSize=256, interval=0):
+def Read_file(filename):
     with open(filename, "rb+") as read_file:
         value_size=0
         value_count=0

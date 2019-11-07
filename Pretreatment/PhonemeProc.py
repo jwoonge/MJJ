@@ -4,34 +4,70 @@ import Framing
 from collections import namedtuple
 import Calculator as c
 import SoundVisualization as sv
+from StandardPro import standard
+import sys
 
 class PhonemeProc():
-    def __init__(self, _frame_size=512, _interval=480, _sensitivity=27, _frame_size_d=32,_interval_d=30):
-        self.frame_size= _frame_size
-        self.interval = _interval
+    def __init__(self, _sensitivity=30):
         self.sensitivity = _sensitivity
-        self.frame_size_d = _frame_size_d
-        self.interval_d = _interval_d
+        self.StandardProc = standard()
 
+    def Directory_Make(self, fileNo = 0, filename_first = 'input/KsponSpeech_'):
+        filename_second = ''
 
-    def Separating(self, input_str):
-        self.pcm = RWwav.Read_file(input_str, self.frame_size, self.interval)
-        RWwav.Write_wav("origin.wav",self.pcm.value,self.pcm.Fs)
+        if fileNo < 10:
+	        filename_second = '00000' + str(fileNo)
+        elif fileNo < 100:
+            filename_second = '0000' + str(fileNo)
+        elif fileNo < 1000:
+            filename_second = '000' + str(fileNo)
+        elif fileNo < 10000:
+            filename_second = '00' + str(fileNo)
+        elif fileNo < 100000:
+            filename_second = '0' + str(fileNo)
+        else:
+            filename_second = str(fileNo)
+        filename = filename_first + filename_second
+
+        return filename
+
+    def Separating(self, fileNo = 0, fileDir = "Default", pcmwav = "pcm"):
+        if fileNo == 0:
+            self.fileNo = 1
+        else:
+            self.fileNo = fileNo
+        self.Hit = False
+        if fileDir=="Default":
+            Directory = self.Directory_Make(fileNo)
+        else:
+            Directory = fileDir
+        self.StandardProc.fileread(Directory)
+        self.Pronun = self.StandardProc.getPronunciation()
+
+        self.pcm = RWwav.Read_file(Directory+'.'+pcmwav)
+        self.frame_size = int((self.pcm.Fs / 12000) * 512)
+        self.interval = int((self.pcm.Fs / 12000) * 480)
+        self.frame_size_d = int((self.pcm.Fs / 16000) * 32)
+        self.interval_d = self.frame_size_d-2
+        #RWwav.Write_wav("origin.wav",self.pcm.value,self.pcm.Fs)
         self.pcm_framed = Framing.Framing(self.pcm.value, self.frame_size, self.interval)
         # sv.Show_Soundwave(pcm.value)
         self.frame_table = []
         for i in range(len(self.pcm_framed)):
-            temp = namedtuple('Coordinate',['Empty','Convex'])
+            temp = namedtuple('Coordinate',['Empty','Convex','Hit'])
             temp.Empty = False
             temp.Convex = 'None'
+            temp.Hit = False
             self.frame_table.append(temp)
         self.frame_LE = c.Log_Energy(self.pcm_framed)
         #### mark empty ####
+        #print("Mark Empty")
         self.Mark_Empty()
         self.Check_Empty()
-        RWwav.Write_wav("removed.wav",self.Removed_empty,self.pcm.Fs)
+        #RWwav.Write_wav("removed.wav",self.Removed_empty,self.pcm.Fs)
 
         #### remove empty ####
+        #print("Remove Empty")
         self.frame_LE_removed = []
         self.pcm_framed_removed = []
         self.invert_frame_table = [] #index of framed_removed -> index of framed
@@ -42,6 +78,7 @@ class PhonemeProc():
                 self.frame_LE_removed.append(self.frame_LE[i])
         # sv.Show_Array(self.frame_LE_removed)
         #################################################
+        #print('Calc inverted_LogSpectrogram')
         self.frame_LE_removed_framed = Framing.Framing(self.frame_LE_removed,self.frame_size_d,self.interval_d)
         self.logSpec = c.Spectrogram(self.frame_LE_removed_framed, self.pcm.Fs)
         self.inverted_logSpec = []
@@ -50,21 +87,43 @@ class PhonemeProc():
             for i in range(len(self.logSpec)):
                 temp.append(self.logSpec[i][j])
             self.inverted_logSpec.append(temp)
-        
-        #### mark convex ####
+    
+        #### mark convex #################################
+        #print('Mark Convex')
         self.Mark_Convex()
         ##################################################
-        self.Separating_write("Separated")
-        sv.Show_Array(self.inverted_logSpec[0])
-        sv.Show_Array(self.inverted_logSpec[1])
+        #print('Calc Hit')
+        self.Mark_Hit()
+
+        #################################################
+        #print('Separate')
+        if self.Hit:
+            self.Separating_write("Separated")
+
+        return self.Hit
+        
+        
+    def Mark_Hit(self):
+        HitCount = 0
+        for i in range(len(self.frame_table)):
+            if not self.frame_table[i].Convex=='None':
+                self.frame_table[i].Hit = True
+                HitCount += 1
+        if HitCount == len(self.Pronun):
+            self.Hit = True
+            print("HIT")
+            for i in range(len(self.points)):
+                print(i+1,"\t",self.points[i].point,"\t",self.points[i].state, "\t", self.Pronun[i])
+        else:
+            self.Hit = False
+            print(self.fileNo,"\tMISS\t HitCount : ",HitCount,"\tExpected : ",len(self.Pronun))
  
     def Separating_write(self, fileDir, cutting_sec=0.05):
-        print(RWwav.removeAllFile(fileDir))
+        RWwav.removeAllFile(fileDir)
         cutting_range = int(cutting_sec * self.pcm.Fs)
         number = 1
         for i in range(len(self.frame_table)):
-            if (not self.frame_table[i].Convex == 'None'):
-                #print(i)
+            if (self.frame_table[i].Hit):
                 directory = fileDir + '/' + str(number) + '.wav'
                 number += 1
                 WriteList = []
@@ -99,14 +158,14 @@ class PhonemeProc():
                 self.Removed_empty.append(self.pcm.value[i])
 
     def Check_Empty(self):
-        minLenSect = (0.12 * self.pcm.Fs - self.frame_size) / (self.frame_size - self.interval)
+        minLenSect = int((0.12 * self.pcm.Fs - self.frame_size) / (self.frame_size - self.interval))
         # have to modify minLenF
         start = 0
         end = start
         while(end < len(self.frame_table)):
             end = start
             if end<len(self.frame_table) and self.frame_table[end].Empty == False:
-                while(end<len(self.frame_table) and self.frame_table[end+1].Empty == False):
+                while(end<len(self.frame_table)-1 and self.frame_table[end+1].Empty == False):
                     end += 1
             lenSect = end - start
 
@@ -114,167 +173,36 @@ class PhonemeProc():
                 for i in range(start, end+1):
                     if i<len(self.frame_table):
                         self.frame_table[i].Empty = True
-                        print("Noise Removed")
             
             start = end + 1
 
     def Mark_Convex(self):
-
-        ####### calculate inclinations #######
-        inclinations = []
-        for i in range(2):
-            temp = []
-            for j in range(len(self.inverted_logSpec[i])-1):
-                inclination = self.inverted_logSpec[i][j+1]-self.inverted_logSpec[i][j]
-                temp.append(inclination)
-            inclinations.append(temp)
-
-        ####### get points from freq0 Graph #######
-        points_0 = []
-        inflections_0 = []
-        for i in range(len(inclinations[0])-1):
-            if(inclinations[0][i+1]*inclinations[0][i]<=0):
-                inflections_0.append(i)
-        print('0: ',inflections_0)
-        start = 0
-        end = start
-        while end<len(inflections_0)-1 :
-            end = start
-            while(end<(len(inflections_0)-1)) and abs(inflections_0[end+1]-inflections_0[end])<=5:
-                end += 1
-            pointIndex = start
-            preStart = inflections_0[start]-1
-            postEnd = inflections_0[end]+1
-            Valid = True
-            state = None
-            if preStart < 0:
-                preStart = 0
-            if postEnd >= len(inclinations[0]):
-                postEnd = len(inclinations[0])-1
-            
-            if( inclinations[0][preStart] >= 0 and inclinations[0][postEnd]< 0 ):
-                state = 'Concave_0'
-                Max = self.inverted_logSpec[0][start]
-                for i in range(start,end+1):
-                    if(self.inverted_logSpec[0][inflections_0[i]]>Max):
-                        Max = self.inverted_logSpec[0][inflections_0[i]]
-                        pointIndex = i
-
-            elif( inclinations[0][preStart] < 0 and inclinations[0][postEnd] >= 0):
-                state = 'Convex_0'
-                Min = self.inverted_logSpec[0][start]
-                for i in range(start,end+1):
-                    if(self.inverted_logSpec[0][inflections_0[i]]<Min):
-                        Min = self.inverted_logSpec[0][inflections_0[i]]
-                        pointIndex = i
-                if self.inverted_logSpec[0][inflections_0[pointIndex]]<0.02:
-                    Valid = False
-                    print("deleted one by Under_values")
-
-            else:
-                state = 'Stable_0'
-                zero = inclinations[0][inflections_0[start]]
-                for i in range(start, end+1):
-                    if (abs(inclinations[0][inflections_0[i]])<abs(zero)):
-                        zero = inclinations[0][inflections_0[i]]
-                        pointIndex = i
-            if Valid==True:
-                temp = namedtuple('Coordinate',['point', 'state'])
-                temp.point = inflections_0[pointIndex] + 1
-                temp.state = state
-                points_0.append(temp)
-            start = end + 1
-        points_0_points = []
+        self.points = []
+        points_0 = c.GetConvex(self.inverted_logSpec[0])
+        #print('points 0 calculated')
+        points_1 = c.GetConvex(self.inverted_logSpec[1])
+        #print('points 1 calculated')
         for i in range(len(points_0)):
-            points_0_points.append(points_0[i].point)
-        ####### get points from freq1 graph #######
+            self.points.append(points_0[i])
+        for i in range(len(points_1)):
+            if points_1[i].state == 'Convex' or points_1[i].state == 'Stable':
+                Remove = False
+                for j in range(len(points_0)):
+                    if abs(points_1[i].point - points_0[j].point)<10:
+                        Remove = True
+                        break
+                if not Remove:
+                    self.points.append(points_1[i])            
+       
+        self.points = sorted(self.points, key = lambda x:x.point)
 
-        points_1 = []
-        inflections_1 = []
-        for i in range(len(inclinations[1])-1):
-            if(inclinations[1][i+1]*inclinations[1][i]<=0):
-                inflections_1.append(i)
-        print('1: ',inflections_1)
-        start = 0
-        end = start
-        while end<len(inflections_1)-1 :
-            state = 'None'
-            Valid = True
-            end = start
-            while(end<(len(inflections_1)-1)) and abs(inflections_1[end+1]-inflections_1[end])<=5:
-                end+=1
-                ## 이 시점에 start, end 결정됨
-
-            pointIndex = start
-            preStart = inflections_1[start]-1
-            postEnd = inflections_1[end]+1
-            
-            if preStart < 0:
-                preStart = 0
-            if postEnd >= len(inclinations[1]):
-                postEnd = len(inclinations[1])-1
-            
-            for i in range(preStart-2, postEnd+2):
-                if i in points_0_points:
-                    Valid = False
-            
-            for i in range(start, end+1):
-                if self.inverted_logSpec[1][inflections_1[i]]<0.02:
-                    Valid = False
-                    print("removed by value under 0.02")
-
-            if Valid==True:
-                if( inclinations[1][preStart] < 0 and inclinations[1][postEnd] >= 0):
-                    state = 'Convex_1'
-                    Min = self.inverted_logSpec[1][start]
-                    for i in range(start,end+1):
-                        if(self.inverted_logSpec[1][inflections_1[i]]<Min):
-                            Min = self.inverted_logSpec[1][inflections_1[i]]
-                            pointIndex = i
-                    if self.inverted_logSpec[1][inflections_1[pointIndex]]<0.02:
-                        Valid = False
-
-                elif ( inclinations[1][preStart] * inclinations[1][postEnd] >= 0):
-                    state = 'Stable_1'
-                    zero = inclinations[1][inflections_1[start]]
-                    for i in range(start, end+1):
-                        if (abs(inclinations[1][inflections_1[i]])<abs(zero)):
-                            zero = inclinations[1][inflections_1[i]]
-                            pointIndex = i
-
-                else:
-                    Valid = False
-
-            if Valid==True:
-                temp = namedtuple('Coordinate',['point', 'state'])
-                temp.point = inflections_1[pointIndex] + 1
-                temp.state = state
-                points_1.append(temp)
-            start = end + 1
-
-        points = points_0 + points_1
-        points = sorted(points, key = lambda x:x.point)
-
-        lst_count= 0
-        for i in range(points[len(points)-2].point+1, points[len(points)-1].point):
-            if inclinations[0][i]>=0:
-                lst_count+=1
-        if lst_count == 0:
-            temp = []
-            for i in range(len(points)-1):
-                temp.append(points[i])
-            points = temp
-            print("Removed last points")
         ### mark Convex of frame_table ###
-        for i in range(len(points)):
-            print(i+1," ",points[i].point," ",points[i].state)
-            index_from_frame_d = Framing.Index_frame_to_origin(points[i].point,self.frame_size_d,self.interval_d)
+        
+        for i in range(len(self.points)):
+            index_from_frame_d = Framing.Index_frame_to_origin(self.points[i].point,self.frame_size_d,self.interval_d)
             index_from_frame_d += int(self.frame_size_d/2)
             index_from_frame_rm = self.invert_frame_table[index_from_frame_d]
             if index_from_frame_rm < len(self.frame_table)-2:
-                self.frame_table[index_from_frame_rm].Convex = points[i].state
+                self.frame_table[index_from_frame_rm].Convex = self.points[i].state
             else:
-                print('Index out of range in Mack_Convex')
-
-
-
+                print('Index out of range in Mark_Convex')
