@@ -38,18 +38,6 @@ def Write_wav(filename, input, sample_rate=16000, value_size=2, num_channels=1):
         for i in range(0, value_count*num_channels):
             write_file.write(input[i].to_bytes(bytes_per_sample,byteorder='little',signed=True))
 
-'''
-def Write_wav_divide(fileDir, input, divideBy, sample_rate=16000,value_size=2, num_channels=1):
-    ''''''
-    input :
-        fileDir : String
-        input : list
-        devideBy : list of dividing indexes 'of values'
-    ''''''
-    directory = fileDir + '/'+str(1) + '.wav'
-    WriteList = []
-    for i in range'''
-
 def removeAllFile(filePath):
     if os.path.exists(filePath):
         for file in os.scandir(filePath):
