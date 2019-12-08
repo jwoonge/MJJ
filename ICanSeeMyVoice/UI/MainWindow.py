@@ -70,17 +70,18 @@ class MainWindow(QMainWindow, form_class):
 
 models = []
 if __name__=='MainWindow':
-  print("Learned Model Loading |          |")
   models.append(load_model('./resource/Models/tot_u.hdf5'))
-  print("Learned Model Loading |**        |")
+  print("Learned Model Loading |**          |")
   models.append(load_model('./resource/Models/tot_v.hdf5'))
-  print("Learned Model Loading |****      |")
+  print("Learned Model Loading |****        |")
   models.append(load_model('./resource/Models/YGD.hdf5'))
-  print("Learned Model Loading |******    |")
+  print("Learned Model Loading |******      |")
   models.append(load_model('./resource/Models/PMP.hdf5'))
-  print("Learned Model Loading |********  |")
+  print("Learned Model Loading |********    |")
   models.append(load_model('./resource/Models/YCGYH.hdf5'))
-  print("Learned Model Loading |**********|")
+  print("Learned Model Loading |**********  |")
+  models.append(load_model('./resource/Models/TOT.hdf5'))
+  print("Learned Model Loading |************|")
 
 import TestWindow
 import TrainWindow

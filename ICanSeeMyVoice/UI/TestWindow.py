@@ -110,7 +110,7 @@ class TestWindow(QMainWindow, form_class2):
       self.MassageBox.show()
       self.test_result_button.setEnabled(False)
     else:
-      phonemes,uvsound = self.PhonemeProc.getPhonemes(pcm)
+      phonemes,uvsound, allmfcc = self.PhonemeProc.getPhonemes(pcm)
       self.scorelist, valid = self.scorer.Get_Score(self.txtdivide.getPronunciation(),phonemes, uvsound)
       self.colloring_word(self.scorelist)
       self.textBrowser_set()

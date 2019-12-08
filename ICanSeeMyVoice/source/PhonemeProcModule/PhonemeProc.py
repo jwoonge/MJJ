@@ -17,6 +17,7 @@ class PhonemeProc():
     self.interval = int((self.sample_rate / 16000) * 480)
 
   def getPhonemes(self, pcmValue):
+    self.allMFCC = []
     self.pcmValue = pcmValue
 
     self.Framing_pcm()
@@ -32,19 +33,35 @@ class PhonemeProc():
 
     self.Separate()
 
-    return self.Make_MFCC()
+    mfcc, uvlist = self.Make_MFCC()
+
+    return mfcc, uvlist, self.allMFCC
 
   def Check_Empty_AVG(self):
     self.frame_table[0].Empty = True
     self.frame_table[-1].Empty = True
-
     self.sect_start = []
     self.sect_end = []
+
     for i in range(len(self.frame_table)-1):
       if self.frame_table[i].Empty and not self.frame_table[i+1].Empty:
         self.sect_start.append(i+1)
       if not self.frame_table[i].Empty and self.frame_table[i+1].Empty:
         self.sect_end.append(i+1)
+
+    i=0
+    while(i<len(self.sect_start)-1):
+      if (self.sect_start[i+1] - self.sect_end[i]) < 0.03*self.sample_rate/(self.frame_size-self.interval):
+        for j in range(self.sect_end[i], self.sect_start[i+1]):
+          self.frame_table[j].Empty = False
+          self.frame_table[j].UV = 2
+
+        del(self.sect_start[i+1])
+        del(self.sect_end[i])
+      else:
+        i+=1
+
+    selected_sect = 0
 
     if not (len(self.sect_start)==1 and len(self.sect_end)==1):
       self.avgSpec = []
@@ -69,6 +86,23 @@ class PhonemeProc():
         if not i in range(self.sect_start[selected_sect], self.sect_end[selected_sect]):
           self.frame_table[i].Empty = True
           self.frame_table[i].UV = 0
+
+    #################################################3
+    allPoints = []
+    voicestart = Framing.Index_frame_to_origin(self.sect_start[selected_sect],self.frame_size,self.interval)
+    voiceend = Framing.Index_frame_to_origin(self.sect_end[selected_sect],self.frame_size,self.interval)
+    allPoints = Framing.Framing(self.pcmValue[voicestart:voiceend],800,0)
+    #allPoints = Framing.Framing(self.pcmValue[voicestart:voiceend],1600,800)
+    for i in range(len(allPoints)):
+      mfcclist = []
+      temp = psf.mfcc(np.array(allPoints[i]), samplerate=self.sample_rate, winlen=0.01, winstep=0.01, nfft=self.frame_size,numcep=12)
+      #temp = psf.mfcc(np.array(allPoints[i]), samplerate=self.sample_rate, winlen=0.02, winstep=0.02, nfft=self.frame_size,numcep=12)
+      for j in range(temp.shape[0]):
+        templist = []
+        for k in range(temp.shape[1]):
+          templist.append(temp[j][k])
+        mfcclist.append(templist)
+      self.allMFCC.append(mfcclist)    
       
   def Separate(self):
     Graph = c.GetDistance(self.Spec_g, th=5)
@@ -179,7 +213,7 @@ class PhonemeProc():
     for i in range(len(self.frame_table)):
       if max(self.Spec[i]) < OptMax / 100:
         self.frame_table[i].Empty = True
-      if self.frame_LE[i] < 0.25 * LEMax:
+      if self.frame_LE[i] < 0.26 * LEMax:
         self.frame_table[i].Empty = True
 
   def Mark_UV(self):

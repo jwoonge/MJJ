@@ -66,6 +66,7 @@ class Scorer():
     self.model_ygd = models[2]
     self.model_pmp = models[3]
     self.model_ycgyh = models[4]
+    self.model_tot = models[5]
 
   def Get_Score(self, Pronun, MFCC, input_UVsound):
     self.Settings(Pronun, MFCC, input_UVsound)
@@ -74,7 +75,8 @@ class Scorer():
 
     return self.scores, self.UV_Matched
 
-  def Get_STT(self):
+  def Get_STT(self, allMFCC):
+    self.allMFCC = allMFCC
     return self.Guess_Sound()
 
   def Scoring(self):
@@ -91,42 +93,45 @@ class Scorer():
       tempmfcc = self.MFCC[self.Match_table[i]]
       tempmfcc = np.reshape(np.array(tempmfcc), [1,5,12,1])
 
-      if self.input_UVsound[self.Match_table[i]] == 'U':
-        ygd_r, pmp_r, ycgyh_r = GetFeat(self.Pronun[i])
-        ygd_list = []
-        ygd_list.append(ygd_r)
-        pmp_list=[]
-        pmp_list.append(pmp_r)
-        ycgyh_list=[]
-        ycgyh_list.append(ycgyh_r)
-        ygd = Calc_class(self.model_ygd, tempmfcc, ygd_list, 15)
-        pmp = Calc_class(self.model_pmp, tempmfcc ,pmp_list, 15)
-        ycgyh = Calc_class(self.model_ycgyh, tempmfcc, ycgyh_list, 15)
-        temp_score = 100
-        if ygd_r != ygd:
-          temp_score -= 25
-        if pmp_r != pmp:
-          temp_score -= 25
-        if ycgyh_r != ycgyh:
-          temp_score -= 25
+      if self.Match_table[i] == -1:
+        temp_score = 0
+      else:
+        if self.input_UVsound[self.Match_table[i]] == 'U':
+          ygd_r, pmp_r, ycgyh_r = GetFeat(self.Pronun[i])
+          ygd_list = []
+          ygd_list.append(ygd_r)
+          pmp_list=[]
+          pmp_list.append(pmp_r)
+          ycgyh_list=[]
+          ycgyh_list.append(ycgyh_r)
+          ygd = Calc_class(self.model_ygd, tempmfcc, ygd_list, 15)
+          pmp = Calc_class(self.model_pmp, tempmfcc ,pmp_list, 15)
+          ycgyh = Calc_class(self.model_ycgyh, tempmfcc, ycgyh_list, 15)
+          temp_score = 100
+          if ygd_r != ygd:
+            temp_score -= 25
+          if pmp_r != pmp:
+            temp_score -= 25
+          if ycgyh_r != ycgyh:
+            temp_score -= 25
 
-      else :
-        r_index = []
-        r_index.append(LUT_vt.index(self.Pronun_int[i]))
-        confidences = Calc_class(self.model_v, tempmfcc, r_index, 10, confidence=True)
-        bests = pickBestN(confidences,10,'x')
-        if not self.Pronun_int[i] in bests :
-          temp_score = 0
-        else:
-          rank = bests.index(self.Pronun_int[i])
-          if rank<3:
-            temp_score = 100
-          elif rank<5:
-            temp_score = 75
-          elif rank<7:
-            temp_score = 50
+        else :
+          r_index = []
+          r_index.append(LUT_vt.index(self.Pronun_int[i]))
+          confidences = Calc_class(self.model_v, tempmfcc, r_index, 10, confidence=True)
+          bests = pickBestN(confidences,10,'x')
+          if not self.Pronun_int[i] in bests :
+            temp_score = 0
           else:
-            temp_score = 25
+            rank = bests.index(self.Pronun_int[i])
+            if rank<3:
+              temp_score = 100
+            elif rank<5:
+              temp_score = 75
+            elif rank<7:
+              temp_score = 50
+            else:
+              temp_score = 25
 
       self.scores[i].score = temp_score
 
@@ -134,15 +139,10 @@ class Scorer():
   def Guess_Sound(self):
     predicted_phonemes = []
 
-    for i in range(len(self.input_UVsound)):
-      tempmfcc = np.reshape(np.array(self.MFCC[i]),[1,5,12,1])
+    for i in range(len(self.allMFCC)):
+      tempmfcc = np.reshape(np.array(self.allMFCC[i]),[1,5,12,1])
 
-      if self.input_UVsound[i] == 'U' :
-        predicted_phonemes.append(LUT_ut[Calc_class(self.model_u,tempmfcc,self.indextoAdv_u,100)])
-      
-      elif self.input_UVsound[i] =='V' :
-        predicted_phonemes.append(LUT_vt[Calc_class(self.model_v,tempmfcc,self.indextoAdv_v,100)])
-    
+      predicted_phonemes.append(LUT_t[Calc_class(self.model_tot, tempmfcc, self.indextoAdv_t,30)])
     return predicted_phonemes
 
   def Match_Phoneme(self):
@@ -181,6 +181,7 @@ class Scorer():
     self.Pronun = Pronun
     self.indextoAdv_u = []
     self.indextoAdv_v = []
+    self.indextoAdv_t = []
     self.Pronun_int = int_phonemes(Pronun)
     self.MFCC = MFCC
     self.input_UVsound = input_UVsound
@@ -217,11 +218,15 @@ class Scorer():
         input_UVtext.append('V')
         if not LUT_vt.index(Pro[i]) in self.indextoAdv_v:
           self.indextoAdv_v.append(LUT_vt.index(Pro[i]))
+        if not LUT_t.index(Pro[i]) in self.indextoAdv_t:
+          self.indextoAdv_t.append(LUT_t.index(Pro[i]))
       elif Pro[i] in (LUT_ut + ['S']):
         input_UVtext.append('U')
         if Pro[i] != 'S':
           if not LUT_ut.index(Pro[i]) in self.indextoAdv_u:
             self.indextoAdv_u.append(LUT_ut.index(Pro[i]))
+          if not LUT_t.index(Pro[i]) in self.indextoAdv_t:
+            self.indextoAdv_t.append(LUT_t.index(Pro[i]))
 
     order = []
     index = []

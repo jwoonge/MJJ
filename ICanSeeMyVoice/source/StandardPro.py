@@ -63,51 +63,18 @@ class standard():
 
   def PhonemeToString(self, phonemes):
     '''
-    s = []
-    i = 0
-    while i < len(phonemes):
-      t = namedtuple('Coordinate', ['초성', '중성', '종성'])
-      t.초성 = '0'
-      t.중성 = '0'
-      t.종성 = '0'
-      if phonemes[i] in self.초성들:
-        if not phonemes[i] == 'ㅇ':
-          t.초성 = phonemes[i]
-          i += 1
-      if i < len(phonemes) and phonemes[i] in self.중성들:
-        t.중성 = phonemes[i]
-        i += 1
-      elif i<len(phonemes) and not phonemes[i] in self.중성들:
-        print(phonemes[i])
-      if i < len(phonemes) and phonemes[i] in self.종성들:
-        if i + 1 < len(phonemes) and phonemes[i + 1] in self.중성들:
-          if phonemes[i] == 'ㅇ':
-            t.종성 = phonemes[i]
-            i += 1
-          else:
-            a = 1
-        elif i + 1 < len(phonemes) and phonemes[i + 1] in self.초성들:
-          t.종성 = phonemes[i]
-          i += 1
-        elif i == len(phonemes) - 1:
-          t.종성 = phonemes[i]
-          i += 1
-      s.append(t)
-
-    for i in range(0, len(s)):
-      if s[i].초성 == '0':
-        s[i].초성 = 'ㅇ'
-      if s[i].종성 == '0':
-        s[i].종성 = ' '
-
+    temp = []
+    temp.append(phonemes[0])
+    for i in range(1, len(phonemes)):
+      if phonemes[i] != phonemes[i-1]:
+        temp.append(phonemes[i])
+    '''
+    temp = phonemes
+    
     ret = ""
-    for i in range(0, len(s)):
-      let = ord('가') + self.초성들.index(s[i].초성) * 21 * 28 + self.중성들.index(s[i].중성) * 28 + self.종성들.index(s[i].종성)
-      ret += (chr(let))
-    return ret'''
-    ret = ""
-    for i in range(len(phonemes)):
-      ret += phonemes[i]
+    for i in range(len(temp)):
+      ret += temp[i]
+    
     return ret
 
 if __name__=='StandardPro':

@@ -97,7 +97,7 @@ class TrainWindow(QMainWindow, form_class1):
       self.MassageBox.show()
       self.train_result_button.setEnabled(False)
     else :
-      phonemes, uvsound = self.PhonemeProc.getPhonemes(pcm)
+      phonemes, uvsound, allmfcc = self.PhonemeProc.getPhonemes(pcm)
       self.scorelist, valid = self.scorer.Get_Score(self.txtdivide.getPronunciation(), phonemes, uvsound)
       if not valid :
         self.MassageBox.textBrowser.setText('ICANSEEMYVOICE가 적절한 음성을 찾지 못했습니다.\n다시 녹음 할 수 있습니다..\nICANSEEMYVOICE can not found a valid sounds.\nYou Can Try Again!')
@@ -105,7 +105,7 @@ class TrainWindow(QMainWindow, form_class1):
       else :
         self.train_record_button.setText('Recording')
       
-      self.expectlist = self.scorer.Get_STT()
+      self.expectlist = self.scorer.Get_STT(allmfcc)
       if self.expectlist[0] == 'S':
         del (self.expectlist[0])
       if self.expectlist[-1] == 'S':
