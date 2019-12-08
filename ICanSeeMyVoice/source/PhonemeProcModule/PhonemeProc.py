@@ -39,7 +39,9 @@ class PhonemeProc():
 
   def Check_Empty_AVG(self):
     self.frame_table[0].Empty = True
+    self.frame_table[0].UV = 0
     self.frame_table[-1].Empty = True
+    self.frame_table[-1].UV = 0
     self.sect_start = []
     self.sect_end = []
 
@@ -86,7 +88,11 @@ class PhonemeProc():
         if not i in range(self.sect_start[selected_sect], self.sect_end[selected_sect]):
           self.frame_table[i].Empty = True
           self.frame_table[i].UV = 0
-
+    ###
+    for i in range(len(self.frame_table)-1):
+      if abs(self.frame_table[i].UV - self.frame_table[i+1].UV)==3:
+        self.frame_table[i].UV = 2
+        self.frame_table[i+1].UV = 2
     #################################################3
     allPoints = []
     voicestart = Framing.Index_frame_to_origin(self.sect_start[selected_sect],self.frame_size,self.interval)
@@ -123,13 +129,14 @@ class PhonemeProc():
         points = self.GetAllZeroPointFromRange(Graph, self.UV_list[i].start, self.UV_list[i].end)
         if points==[]:
           convexes = c.GetConvex_range(Graph_i, self.UV_list[i].start, self.UV_list[i].end)
-          minindex = convexes[0]
-          minvalue = Graph[convexes[0]]
-          for j in range(len(convexes)):
-            if minvalue > Graph[convexes[j]]:
-              minvalue = Graph[convexes[j]]
-              minindex = convexes[j]
-            points.append(minindex)
+          if len(convexes)>0:
+            minindex = convexes[0]
+            minvalue = Graph[convexes[0]]
+            for j in range(len(convexes)):
+              if minvalue > Graph[convexes[j]]:
+                minvalue = Graph[convexes[j]]
+                minindex = convexes[j]
+              points.append(minindex)
 
         for j in range(len(points)):
           temp = namedtuple('phoneme', ['point', 'UV', 'pcm_start', 'pcm_end'])
